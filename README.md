@@ -1,6 +1,6 @@
-# PumpCalc — primera versión
+# PumpCalc
 
-Aplicación de escritorio para estimar el punto de operación de **una bomba, una tubería de diámetro constante y agua**. La ventana tiene un menú lateral para introducir la instalación y la curva de la bomba, y ver el resultado con ambas curvas.
+Aplicación de escritorio para estimar el punto de operación de **una bomba, una tubería de diámetro constante y agua** con el tanque casi vacío y casi lleno. Compara los dos caudales estimados con una meta y permite guardar escenarios locales.
 
 ## Instalación y ejecución
 
@@ -23,11 +23,11 @@ Para recrear el entorno en este equipo, usa la instalación funcional de Python 
 
 ## Datos y resultados
 
-- Instalación: longitud (m), diámetro interior (mm), material, desnivel (m) y cantidades de codos de 90°, válvulas de compuerta abiertas y válvulas de retención.
-- Bomba: pares de caudal (m³/h) y altura (m), un par por línea, separados por `;`. Los caudales deben aumentar y las alturas disminuir o mantenerse.
-- Resultados: caudal y altura de operación, velocidad del agua, pérdida en la tubería y pérdida en accesorios. Si no hay intersección dentro del intervalo dado para la bomba, se informa sin extrapolar.
+- Instalación: meta (m³/h), longitud (m), diámetro interior (mm), material, dos desniveles (m), posición de la bomba respecto a la fuente y cantidades de accesorios.
+- Bomba: puntos de caudal y altura (m) en filas separadas. La unidad de caudal puede ser m³/h, L/min o US gpm. Los caudales deben aumentar y las alturas disminuir o mantenerse. Fabricante, modelo y referencia son datos opcionales para identificar la curva; no intervienen en el cálculo.
+- Resultados: caudal y altura de operación, velocidad, pérdidas y curvas para cada condición. Si no hay intersección dentro del intervalo dado, se informa sin extrapolar. La succión no se evalúa.
 
-La comparación inicial consiste en cambiar los datos y recalcular. Se muestra el resultado anterior para facilitar la comparación inmediata. No se guardan configuraciones.
+La barra lateral lleva directamente a **Instalación**, **Curva de bomba**, **Resultados** y **Escenarios**. El formulario agrupa los datos por secciones y deja el contexto opcional plegado. Se pueden guardar borradores incompletos, abrirlos, duplicarlos y comparar dos escenarios. Los cálculos se marcan como desactualizados cuando cambian sus entradas. La base de datos local `pumpcalc_data.sqlite3` se crea junto a `main.py` y se excluye de Git. Los valores precargados son **datos de demostración**, no mediciones de una finca.
 
 ## Modelo y alcance
 
@@ -38,3 +38,10 @@ El módulo [`pumpcalc/hydraulics.py`](pumpcalc/hydraulics.py) no tiene importaci
 Las pérdidas de accesorios son `ΣK · v² / (2g)`. Los coeficientes iniciales son: PVC `C=150`, acero `C=120`, hierro fundido `C=100`; codo de 90° `K=0.9`, compuerta abierta `K=0.15` y retención `K=2.5`. Son valores aproximados para esta primera versión. La curva de la bomba se interpola linealmente entre los pares introducidos. El cruce de las curvas se obtiene mediante bisección en el segmento que cambia de signo.
 
 El modelo supone tubería llena, agua, flujo estacionario y una única línea principal. No considera redes ramificadas, varias bombas, transitorios ni cambios de diámetro. Es una estimación académica; los coeficientes y la curva deben corresponder a la instalación real para usar el resultado en una decisión técnica.
+
+## Documentos de evolución
+
+- [Necesidad y requisitos del producto](NECESIDAD_Y_REQUERIMIENTOS.md): usuario principal de la finca, recorrido, funciones actuales y propuestas, e historias de usuario.
+- [Caso de finca y validación](CASO_FINCA_Y_VALIDACION.md): interpretación de las dos condiciones del tanque, límites del modelo y datos pendientes para contrastarlo con una finca real.
+
+Los documentos de evolución se redactaron antes de esta implementación. Sus columnas de «estado actual» describen la línea base previa; este README describe la funcionalidad presente. La validación de campo y la alerta de velocidad elevada siguen pendientes.
