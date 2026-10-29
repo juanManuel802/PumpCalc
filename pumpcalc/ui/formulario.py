@@ -122,24 +122,21 @@ class Formulario:
                                           anchor="w", justify="left", wraplength=760)
         self.aviso_ejemplo.pack(fill="x", padx=14, pady=10)
 
-        objetivo = self._seccion(scroll, "01", "Objetivo", "El caudal que necesitas es una meta para comparar, no una salida de la bomba.")
-        rejilla = self._rejilla(objetivo)
-        self._campo(rejilla, "meta", "Caudal mínimo deseado  ·  m³/h", 0, 0, 2, "Ej.: 6,5")
-
-        tuberia = self._seccion(scroll, "02", "Tubería", "Usa la longitud del recorrido y el diámetro interior real.")
+        tuberia = self._seccion(scroll, "01", "Recorrido de la tubería",
+                                "Ingresa la distancia real que recorrerá el agua a lo largo del tubo, no solo la distancia en línea recta.")
         rejilla = self._rejilla(tuberia)
-        self._campo(rejilla, "longitud", "Longitud total  ·  m", 0, 0)
+        self._campo(rejilla, "longitud", "Distancia del recorrido  ·  m", 0, 0)
         self._campo(rejilla, "diametro", "Diámetro interior  ·  mm", 0, 1)
         self._opcion(rejilla, "material", "Material", list(MATERIALES), 1, 0, 2)
         self._nota(tuberia, "El material selecciona un coeficiente de fricción aproximado; no describe el estado particular de tu tubo.")
 
-        niveles = self._seccion(scroll, "03", "Niveles del agua", "Mide desde la superficie de la fuente hasta la del tanque en cada condición.")
+        niveles = self._seccion(scroll, "02", "Niveles del agua", "Mide desde la superficie de la fuente hasta la del tanque en cada condición.")
         rejilla = self._rejilla(niveles)
         self._campo(rejilla, "desnivel_vacio", "Tanque casi vacío  ·  m", 0, 0)
         self._campo(rejilla, "desnivel_lleno", "Tanque casi lleno  ·  m", 0, 1)
         self._nota(niveles, "Si también baja el nivel de la fuente, inclúyelo en el desnivel de cada condición.")
 
-        accesorios = self._seccion(scroll, "04", "Accesorios", "Indica cuántas piezas de cada tipo hay en el recorrido.")
+        accesorios = self._seccion(scroll, "03", "Accesorios", "Indica cuántas piezas de cada tipo hay en el recorrido.")
         rejilla = self._rejilla(accesorios, 3)
         for indice, nombre in enumerate(ACCESORIOS):
             self._campo(rejilla, f"accesorio_{indice}", nombre, 0, indice)

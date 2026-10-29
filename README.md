@@ -1,6 +1,6 @@
 # PumpCalc
 
-Aplicación de escritorio para estimar el punto de operación de **una bomba, una tubería de diámetro constante y agua** con el tanque casi vacío y casi lleno. Compara los dos caudales estimados con una meta y permite guardar escenarios locales.
+Aplicación de escritorio para estimar el punto de operación de **una bomba, una tubería de diámetro constante y agua** con el tanque casi vacío y casi lleno. El usuario indica el recorrido de la tubería y el programa calcula el caudal y la velocidad estimados; también permite guardar escenarios locales.
 
 ## Instalación y ejecución
 
@@ -23,7 +23,7 @@ Para recrear el entorno en este equipo, usa la instalación funcional de Python 
 
 ## Datos y resultados
 
-- Instalación: meta (m³/h), longitud (m), diámetro interior (mm), material, dos desniveles (m), posición de la bomba respecto a la fuente y cantidades de accesorios.
+- Instalación: distancia real a lo largo de la tubería (m), diámetro interior (mm), material, dos desniveles (m), posición de la bomba respecto a la fuente y cantidades de accesorios. No se pide una meta de caudal ni una velocidad conocida de antemano.
 - Bomba: puntos de caudal y altura (m) en filas separadas. La unidad de caudal puede ser m³/h, L/min o US gpm. Los caudales deben aumentar y las alturas disminuir o mantenerse. Fabricante, modelo y referencia son datos opcionales para identificar la curva; no intervienen en el cálculo.
 - Resultados: caudal y altura de operación, velocidad, pérdidas y curvas para cada condición. Si no hay intersección dentro del intervalo dado, se informa sin extrapolar. La succión no se evalúa.
 
@@ -45,3 +45,5 @@ El modelo supone tubería llena, agua, flujo estacionario y una única línea pr
 - [Caso de finca y validación](CASO_FINCA_Y_VALIDACION.md): interpretación de las dos condiciones del tanque, límites del modelo y datos pendientes para contrastarlo con una finca real.
 
 Los documentos de evolución se redactaron antes de esta implementación. Sus columnas de «estado actual» describen la línea base previa; este README describe la funcionalidad presente. La validación de campo y la alerta de velocidad elevada siguen pendientes.
+
+Los escenarios guardados con una meta de caudal de versiones anteriores conservan ese dato en el archivo local, pero el cálculo actual ya no lo utiliza. Al abrirlos, sus resultados anteriores se marcarán como desactualizados hasta recalcular.

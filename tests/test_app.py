@@ -17,6 +17,8 @@ class InterfazTests(unittest.TestCase):
                 self.skipTest(f"No hay pantalla para probar Tk: {error}")
             try:
                 self.assertEqual(app._datos_actuales()["referencia"], "")
+                self.assertNotIn("meta", app._datos_actuales())
+                self.assertIn("longitud", app._datos_actuales())
                 self.assertEqual(len(app.formulario.filas_curva), 5)
                 curva_original = app._datos_actuales()["puntos"]
                 app.formulario.agregar_punto("10", "2")

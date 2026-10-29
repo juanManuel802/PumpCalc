@@ -13,7 +13,7 @@ from pumpcalc.ui.grafica import dibujar
 
 
 DEMOSTRACION = {
-    "meta": "6.5", "longitud": "40", "diametro": "32", "material": "PVC",
+    "longitud": "40", "diametro": "32", "material": "PVC",
     "desnivel_vacio": "12", "desnivel_lleno": "12",
     "accesorio_0": "2", "accesorio_1": "1", "accesorio_2": "1",
     "posicion": "No indicada", "origen_tuberia": "Demostración",
@@ -199,9 +199,10 @@ class PumpCalcApp(ctk.CTk):
         messagebox.showinfo(
             "¿Qué datos necesito?",
             "PumpCalc estima el caudal de una bomba hacia un tanque abierto mediante una sola tubería.\n\n"
-            "De la finca: meta de caudal, recorrido del tubo, diámetro interior, material, accesorios y "
+            "De la finca: distancia a lo largo del tubo, diámetro interior, material, accesorios y "
             "desnivel entre superficies de agua con el tanque casi vacío y casi lleno. Puedes medirlos o "
-            "consultar el plano y la especificación del tubo.\n\n"
+            "consultar el plano y la especificación del tubo. No necesitas conocer de antemano el caudal "
+            "ni la velocidad del agua.\n\n"
             "De la bomba: al menos dos pares caudal–altura de una misma curva. "
             "Comprueba si la unidad es m³/h, L/min o galón estadounidense por minuto.\n\n"
             "Si conoces el fabricante, modelo o referencia, puedes anotarlos para identificar la curva. "
@@ -350,7 +351,7 @@ class PumpCalcApp(ctk.CTk):
         if not a or not b or a["id"] == b["id"]:
             texto = "Selecciona dos escenarios distintos."
         else:
-            claves = (("meta", "Meta (m³/h)"), ("longitud", "Longitud (m)"),
+            claves = (("longitud", "Distancia del recorrido (m)"),
                       ("diametro", "Diámetro interior (mm)"), ("material", "Material"),
                       ("desnivel_vacio", "Desnivel inicial (m)"),
                       ("desnivel_lleno", "Desnivel final (m)"),

@@ -33,7 +33,6 @@ def _numero(datos, clave, etiqueta, minimo=0, positivo=False):
 
 def validar_entradas(datos):
     """Devuelve números listos para el cálculo o un error asociado a su campo."""
-    meta = _numero(datos, "meta", "Meta de caudal", positivo=True)
     longitud = _numero(datos, "longitud", "Longitud de tubería", positivo=True)
     diametro = _numero(datos, "diametro", "Diámetro interior", positivo=True)
     vacio = _numero(datos, "desnivel_vacio", "Desnivel con tanque casi vacío")
@@ -75,7 +74,7 @@ def validar_entradas(datos):
         if puntos[indice + 1][0] <= puntos[indice][0] or puntos[indice + 1][1] > puntos[indice][1]:
             raise ErrorEntrada("puntos", "Curva: ordena por caudal creciente y altura no creciente.")
     return {
-        "meta": meta, "longitud": longitud, "diametro": diametro,
+        "longitud": longitud, "diametro": diametro,
         "desnivel_vacio": vacio, "desnivel_lleno": lleno,
         "material": material, "cantidades": cantidades, "puntos": puntos,
         "suma_k": sum(cantidades[n] * k for n, k in ACCESORIOS.items()),
@@ -89,9 +88,8 @@ def _condicion(datos, desnivel):
         MATERIALES[datos["material"]], desnivel, datos["suma_k"],
     )
     if resultado is not None:
-        cumple = resultado["caudal_m3h"] >= datos["meta"]
-        return {"estado": "cruce", "resultado": resultado, "cumple": cumple,
-                "mensaje": "Alcanza la meta estimada." if cumple else "No alcanza la meta estimada."}
+        return {"estado": "cruce", "resultado": resultado,
+                "mensaje": "Caudal y velocidad estimados para esta condición."}
     q_primero, h_primera = puntos[0]
     q_ultimo, h_ultima = puntos[-1]
     f_primero = h_primera - altura_instalacion(
@@ -103,7 +101,7 @@ def _condicion(datos, desnivel):
         MATERIALES[datos["material"]], desnivel, datos["suma_k"],
     )["total_m"]
     if q_primero == 0 and f_primero < 0:
-        return {"estado": "altura_insuficiente", "resultado": None, "cumple": False,
+        return {"estado": "altura_insuficiente", "resultado": None,
                 "mensaje": "La bomba no vence la altura estática ni a caudal cero, según esta curva."}
     if f_ultimo > 0:
         mensaje = "La bomba aún supera la altura requerida en el último punto. Faltan datos a caudales mayores."
@@ -111,7 +109,7 @@ def _condicion(datos, desnivel):
         mensaje = "La curva empieza por debajo de la altura requerida. Podrían faltar datos a caudales menores."
     else:
         mensaje = "No se encontró cruce dentro de la curva ingresada. Faltan datos para decidir."
-    return {"estado": "sin_cruce", "resultado": None, "cumple": None, "mensaje": mensaje}
+    return {"estado": "sin_cruce", "resultado": None, "mensaje": mensaje}
 
 
 def calcular_escenario(entradas):
@@ -120,21 +118,21 @@ def calcular_escenario(entradas):
         "vacio": _condicion(datos, datos["desnivel_vacio"]),
         "lleno": _condicion(datos, datos["desnivel_lleno"]),
     }
-    cumple = [condiciones[n]["cumple"] for n in ("vacio", "lleno")]
-    if None in cumple:
-        resumen = "No concluyente: falta curva para decidir en al menos una condición."
-    elif all(cumple):
-        resumen = "La meta se alcanza en ambas condiciones estimadas."
-    elif not any(cumple):
-        resumen = "La meta no se alcanza en ninguna condición estimada."
+    vacio = condiciones["vacio"]["resultado"]
+    lleno = condiciones["lleno"]["resultado"]
+    if vacio and lleno:
+        resumen = (f"Caudal estimado: {vacio['caudal_m3h']:.3f} m³/h con el tanque casi vacío "
+                   f"y {lleno['caudal_m3h']:.3f} m³/h casi lleno.")
+    elif vacio or lleno:
+        condicion = "casi vacío" if vacio else "casi lleno"
+        resumen = f"Solo se pudo estimar el caudal con el tanque {condicion}; revisa la otra condición."
     else:
-        cual = "tanque casi vacío" if cumple[0] else "tanque casi lleno"
-        resumen = f"La meta se alcanza solo con {cual}, según el modelo."
+        resumen = "No se pudo estimar el caudal en ninguna condición con la curva proporcionada."
     return {"datos": datos, "condiciones": condiciones, "resumen": resumen}
 
 
 def firma_calculo(entradas):
-    """Campos que modifican el cálculo o la comparación con la meta."""
-    claves = ("meta", "longitud", "diametro", "desnivel_vacio", "desnivel_lleno",
+    """Campos que modifican el cálculo."""
+    claves = ("longitud", "diametro", "desnivel_vacio", "desnivel_lleno",
               "material", "unidad", "puntos", "accesorio_0", "accesorio_1", "accesorio_2")
     return {clave: str(entradas.get(clave, "")).strip() for clave in claves}

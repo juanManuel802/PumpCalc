@@ -8,7 +8,7 @@ from pumpcalc.persistencia import AlmacenEscenarios
 
 def entradas(**cambios):
     datos = {
-        "meta": "6.5", "longitud": "40", "diametro": "32", "material": "PVC",
+        "longitud": "40", "diametro": "32", "material": "PVC",
         "desnivel_vacio": "12", "desnivel_lleno": "15",
         "accesorio_0": "2", "accesorio_1": "1", "accesorio_2": "1",
         "modelo": "Bomba de prueba", "referencia": "Ficha de prueba",
@@ -19,12 +19,19 @@ def entradas(**cambios):
 
 
 class CasosDeUsoTests(unittest.TestCase):
-    def test_calcula_dos_condiciones_y_meta(self):
+    def test_calcula_dos_condiciones_sin_meta_de_caudal(self):
         calculo = calcular_escenario(entradas())
         vacio = calculo["condiciones"]["vacio"]["resultado"]["caudal_m3h"]
         lleno = calculo["condiciones"]["lleno"]["resultado"]["caudal_m3h"]
         self.assertGreater(vacio, lleno)
-        self.assertIn("ninguna", calculo["resumen"])
+        self.assertIn("Caudal estimado", calculo["resumen"])
+        self.assertNotIn("meta", calculo["datos"])
+
+    def test_la_distancia_modifica_el_caudal_calculado(self):
+        corto = calcular_escenario(entradas(longitud="20"))
+        largo = calcular_escenario(entradas(longitud="80"))
+        self.assertGreater(corto["condiciones"]["vacio"]["resultado"]["caudal_m3h"],
+                           largo["condiciones"]["vacio"]["resultado"]["caudal_m3h"])
 
     def test_identificacion_de_bomba_es_opcional(self):
         calculo = calcular_escenario(entradas(modelo="", referencia="", fabricante=""))
@@ -47,15 +54,17 @@ class CasosDeUsoTests(unittest.TestCase):
     def test_sin_cruce_distingue_altura_insuficiente_de_curva_incompleta(self):
         bajo = calcular_escenario(entradas(puntos="0; 5\n2; 4"))
         self.assertEqual(bajo["condiciones"]["vacio"]["estado"], "altura_insuficiente")
-        self.assertIn("ninguna", bajo["resumen"])
+        self.assertIn("No se pudo estimar", bajo["resumen"])
         corto = calcular_escenario(entradas(puntos="0; 38\n2; 35"))
         self.assertEqual(corto["condiciones"]["vacio"]["estado"], "sin_cruce")
-        self.assertIn("No concluyente", corto["resumen"])
+        self.assertIn("No se pudo estimar", corto["resumen"])
 
     def test_firma_detecta_cambio_de_calculo_pero_no_de_nombre(self):
         inicial = entradas()
-        modificado = entradas(meta="7")
+        modificado = entradas(longitud="70")
         self.assertNotEqual(firma_calculo(inicial), firma_calculo(modificado))
+        modificado = entradas(meta="7")  # dato legado que ya no participa en el cálculo
+        self.assertEqual(firma_calculo(inicial), firma_calculo(modificado))
         modificado = entradas(fabricante="Otro")
         self.assertEqual(firma_calculo(inicial), firma_calculo(modificado))
 
